@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- Ripgrep download settings -->
+    <RipgrepVersion>14.1.1</RipgrepVersion>
+    <RipgrepOutputDir>$(OutDir)</RipgrepOutputDir>
+    <RuntimeOS Condition="'$(RuntimeIdentifier)' == ''">linux</RuntimeOS> <!-- default OS -->
+  </PropertyGroup>
+
+  <Target Name="DownloadRipgrep" AfterTargets="Build">
+    <PropertyGroup>
+      <RipgrepOutputDir>$(MSBuildThisFileDirectory)bin\$(Configuration)\net9.0\</RipgrepOutputDir>
+      <RgBinary>$(RipgrepOutputDir)rg</RgBinary>
+      <RipgrepUrl Condition="'$(RuntimeOS)'=='linux'">https://github.com/BurntSushi/ripgrep/releases/download/$(RipgrepVersion)/ripgrep-$(RipgrepVersion)-x86_64-unknown-linux-musl.tar.gz</RipgrepUrl>
+      <RipgrepUrl Condition="'$(RuntimeOS)'=='windows'">https://github.com/BurntSushi/ripgrep/releases/download/$(RipgrepVersion)/ripgrep-$(RipgrepVersion)-x86_64-pc-windows-msvc.zip</RipgrepUrl>
+      <RipgrepUrl Condition="'$(RuntimeOS)'=='osx'">https://github.com/BurntSushi/ripgrep/releases/download/$(RipgrepVersion)/ripgrep-$(RipgrepVersion)-x86_64-apple-darwin.tar.gz</RipgrepUrl>
+    </PropertyGroup>
+
+    <Exec Condition="'$(RuntimeOS)'=='linux' Or '$(RuntimeOS)'=='osx'"
+      Command="bash -c 'if [ ! -f &quot;$(RgBinary)&quot; ]; then mkdir -p &quot;$(RipgrepOutputDir)&quot; &amp;&amp; curl -L $(RipgrepUrl) -o /tmp/rg.tar.gz &amp;&amp; tar -xzf /tmp/rg.tar.gz -C /tmp &amp;&amp; cp /tmp/ripgrep-$(RipgrepVersion)-*/rg &quot;$(RgBinary)&quot; &amp;&amp; chmod +x &quot;$(RgBinary)&quot;; fi'" />
+
+
+    <Exec Condition="'$(RuntimeOS)'=='windows'" 
+      Command="powershell -Command &quot;if (-Not (Test-Path $(RgBinary))) { Invoke-WebRequest $(RipgrepUrl) -OutFile $(RipgrepOutputDir)rg.zip; Expand-Archive $(RipgrepOutputDir)rg.zip -DestinationPath $(RipgrepOutputDir); }&quot;" />
+
+  </Target>
+
+</Project>
