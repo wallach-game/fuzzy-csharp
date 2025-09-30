@@ -80,7 +80,7 @@ class Program
         }
     }
 
-    static Process RunRipGrep(string pattern, string args = "--line-number --hidden")
+    static Process RunRipGrep(string pattern, string args = "--line-number --hidden --color=always")
     {
         var startInfo = new ProcessStartInfo
         {
