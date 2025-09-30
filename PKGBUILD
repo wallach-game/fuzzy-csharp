@@ -14,7 +14,7 @@ sha256sums=('SKIP')  # Git repos usually skip checksum
 
 build() {
     cd "$srcdir/fuzzy-csharp"
-    dotnet publish FuzzyFinder.csproj -c Release -o publish
+    dotnet publish fuzzy.csproj -c Release -o publish
 }
 
 package() {
