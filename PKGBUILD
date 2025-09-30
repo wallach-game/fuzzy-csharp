@@ -9,24 +9,26 @@ license=('MIT')
 depends=('dotnet-runtime' 'ripgrep')
 makedepends=('dotnet-sdk')
 source=("git+https://github.com/wallach-game/fuzzy-csharp.git")
-sha256sums=('SKIP')
+sha256sums=('SKIP')  # Git repos usually skip checksum
+
 
 build() {
-    cd "$srcdir/$pkgname"
-    dotnet publish -c Release -o "$srcdir/$pkgname/publish"
+    cd "$srcdir/fuzzy-csharp"
+    dotnet publish FuzzyFinder.csproj -c Release -o publish
 }
 
 package() {
     install -d "$pkgdir/usr/lib/fuzzy"
     install -d "$pkgdir/usr/bin"
 
-    # Copy published files (native binary + dependencies)
-    cp -r "$srcdir/$pkgname/publish/"* "$pkgdir/usr/lib/fuzzy/"
-
-    # Ensure native binary is executable
+    # Copy the published output
+    cp -r "$srcdir/fuzzy-csharp/publish/"* "$pkgdir/usr/lib/fuzzy/"
     chmod +x "$pkgdir/usr/lib/fuzzy/fuzzy"
 
-    cp "./fuzzy" "$pkgdir/usr/bin/fuzzy"
-
+    # Create wrapper script in /usr/bin
+    cat > "$pkgdir/usr/bin/fuzzy" << 'EOF'
+#!/bin/bash
+exec /usr/lib/fuzzy/fuzzy "$@"
+EOF
     chmod +x "$pkgdir/usr/bin/fuzzy"
 }
